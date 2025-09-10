@@ -1,23 +1,61 @@
+# Copyright 2016, 2022 John J. Rofrano. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# pylint: disable=too-few-public-methods
+
 """
-CLI Command Extensions for Flask
+Test Factory to make fake objects for testing
 """
-import os
-from unittest import TestCase
-from unittest.mock import patch, MagicMock
-from click.testing import CliRunner
-from service.common.cli_commands import db_create
+import factory
+from factory.fuzzy import FuzzyChoice, FuzzyDecimal
+from service.models import Product, Category
 
 
-class TestFlaskCLI(TestCase):
-    """Test Flask CLI Commands"""
+class ProductFactory(factory.Factory):
+    """Creates fake products for testing"""
 
-    def setUp(self):
-        self.runner = CliRunner()
+    class Meta:
+        """Maps factory to data model"""
 
-    @patch('service.common.cli_commands.db')
-    def test_db_create(self, db_mock):
-        """It should call the db-create command"""
-        db_mock.return_value = MagicMock()
-        with patch.dict(os.environ, {"FLASK_APP": "service:app"}, clear=True):
-            result = self.runner.invoke(db_create)
-            self.assertEqual(result.exit_code, 0)
+        model = Product
+
+    id = factory.Sequence(lambda n: n)
+    name = FuzzyChoice(
+        choices=[
+            "Hat",
+            "Pants",
+            "Shirt",
+            "Apple",
+            "Banana",
+            "Pots",
+            "Towels",
+            "Ford",
+            "Chevy",
+            "Hammer",
+            "Wrench",
+        ]
+    )
+    description = factory.Faker("text")
+    price = FuzzyDecimal(0.5, 2000.0, 2)
+    available = FuzzyChoice(choices=[True, False])
+    category = FuzzyChoice(
+        choices=[
+            Category.UNKNOWN,
+            Category.CLOTHS,
+            Category.FOOD,
+            Category.HOUSEWARES,
+            Category.AUTOMOTIVE,
+            Category.TOOLS,
+        ]
+    )
