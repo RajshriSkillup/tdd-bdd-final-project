@@ -110,6 +110,11 @@ def list_products():
     if name:
         app.logger.info("Find by name: %s", name)
         products = Product.find_by_name(name)
+    elif category:
+        app.logger.info("Find by category: %s", category)
+        # create enum from string
+        category_value = getattr(Category, category.upper())
+        products = Product.find_by_category(category_value)
 
     results = [product.serialize() for product in products]
     app.logger.info("[%s] Products returned", len(results))
